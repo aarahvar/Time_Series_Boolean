@@ -1,0 +1,43 @@
+function T_interp = Interpolate_Production_Term(Logic_Output,TF)
+%% 
+% Create a set of grid points and corresponding sample values.  
+Num_TF = size(TF,2);
+
+out_str='[X1';
+for i=2:Num_TF
+    out_str = [out_str ',X' num2str(i)];
+end
+[X1,X2] = ndgrid(0:1);
+Logic_Output_Mtx = reshape(Logic_Output,Num_TF,Num_TF)';
+
+Anti_Log = 1;
+windowSize = 2;
+Range_divider_thr = 30;
+shift =0 ;
+n=6;
+k=.5;
+
+if Anti_Log
+    TF=2.^TF;
+    Max_TF = max(TF);
+    for i=1:Num_TF
+        TF(:,i) = TF(:,i)/Max_TF(i);
+    end
+    %     TF1 = TF1-mean(TF1(~isnan(TF1)))+k;
+    %     TF2 = TF2-mean(TF2(~isnan(TF2)))+k;
+end
+
+
+% TF1 = Hill_function(TF1,n,k,'up');
+% TF2 = Hill_function(TF2,n,k,'up');
+%% 
+% Interpolate over a finer grid using |ntimes=1|. 
+T_interp = interpn(X1,X2,Logic_Output_Mtx,TF1,TF2,'linear');
+
+
+figure(10)
+[Xq1,Xq2]=ndgrid(sort(TF1),sort(TF2));
+Vq = interpn(X1,X2,Logic_Output_Mtx,Xq1,Xq2,'linear');
+
+
+mesh(Xq1,Xq2,Vq);      
